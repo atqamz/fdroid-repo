@@ -19,7 +19,7 @@ The repository address:
 3. The client shows the fingerprint of the repository's signing key. It must be
    the line below. If it differs, do not add the repository.
 
-       FINGERPRINT: <the index key's SHA-256, as keytool -list prints it>
+       FINGERPRINT: B5:53:C4:9C:8D:FD:96:AB:F1:1D:F5:1A:CB:2F:C0:54:8A:5D:A4:49:40:E2:C9:A7:7B:5E:6F:D3:19:F8:98:F5
 
 4. Go back to the latest tab and refresh. Hand Companion appears there.
 
