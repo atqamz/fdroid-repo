@@ -1,0 +1,88 @@
+name: Repo
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "17 4 * * *"
+  repository_dispatch:
+    types: [hand-android-release]
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+env:
+  GH_TOKEN: ${{ github.token }}
+  FDROID_CONFIG: ${{ github.workspace }}/config.yml
+
+jobs:
+  index:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-java@77dd5b2ce225ea11469928ac317850245a74ae78 # v6.2.0
+        with:
+          distribution: temurin
+          java-version: "21"
+      - name: Install fdroidserver
+        run: |
+          python3 -m venv "$RUNNER_TEMP/venv"
+          "$RUNNER_TEMP/venv/bin/pip" install --quiet fdroidserver==2.4.5
+          echo "$RUNNER_TEMP/venv/bin" >> "$GITHUB_PATH"
+          sudo apt-get install -y --no-install-recommends apksigner
+      - name: Keep the previous index and archive
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: |
+            repo
+            archive
+          key: fdroid-${{ github.run_id }}
+          restore-keys: fdroid-
+      - name: Download the newest release
+        run: |
+          tag="$(gh release view --repo atqamz/hand-android --json tagName --jq .tagName)"
+          gh release download "$tag" --repo atqamz/hand-android --pattern 'hand-android-*.apk' --dir incoming
+          apk="$(ls incoming/*.apk)"
+          name="$(basename "$apk")"
+          digest="$(gh release view "$tag" --repo atqamz/hand-android --json assets --jq ".assets[] | select(.name == \"$name\") | .digest")"
+          test "sha256:$(sha256sum "$apk" | cut -d' ' -f1)" = "$digest"
+      - name: Write the config and the index key
+        env:
+          FDROID_INDEX_KEYSTORE: ${{ secrets.FDROID_INDEX_KEYSTORE }}
+          FDROID_INDEX_PASSWORD: ${{ secrets.FDROID_INDEX_PASSWORD }}
+          FDROID_KEY_PASSWORD: ${{ secrets.FDROID_KEY_PASSWORD }}
+        run: |
+          umask 077
+          export FDROID_KEYSTORE_PATH="$RUNNER_TEMP/index.p12"
+          printf '%s' "$FDROID_INDEX_KEYSTORE" | base64 -d > "$FDROID_KEYSTORE_PATH"
+          "$RUNNER_TEMP/venv/bin/python" render_config.py
+      - name: Build the index
+        run: |
+          mkdir -p repo/icons
+          cp icon.png repo/icons/icon.png
+          cp incoming/*.apk repo/
+          fdroid lint
+          fdroid update
+          jq -e '.packages["io.github.atqamz.handcompanion"].versions | length > 0' repo/index-v2.json > /dev/null
+      - name: Stage the site
+        run: |
+          mkdir site
+          cp -r repo site/repo
+          cp -r archive site/archive
+      - uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
+        with:
+          path: site
+      - name: Deploy
+        id: deploy
+        uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5.0.1

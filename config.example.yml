@@ -1,0 +1,10 @@
+repo_url: https://atqamz.github.io/fdroid-repo/repo
+repo_name: Hand Companion
+repo_description: Hand's Android app, signed by its own release key
+repo_icon: icon.png
+archive_older: 3
+keystore: ${FDROID_KEYSTORE_PATH}
+repo_keyalias: handcompanion
+keystorepass: ${FDROID_INDEX_PASSWORD}
+keypass: ${FDROID_KEY_PASSWORD}
+keydname: CN=Hand Companion, O=atqamz, C=ID

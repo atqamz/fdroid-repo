@@ -1,0 +1,8 @@
+/config.yml
+/incoming/
+/repo/
+/archive/
+/site/
+*.jks
+*.p12
+*.b64
