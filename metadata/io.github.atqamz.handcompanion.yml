@@ -3,14 +3,14 @@ Categories:
 License: MIT
 AuthorName: Atqa Munzir
 WebSite: https://github.com/atqamz/hand
-SourceCode: https://github.com/atqamz/hand-android
-IssueTracker: https://github.com/atqamz/hand-android/issues
+SourceCode: https://github.com/atqamz/hand
+IssueTracker: https://github.com/atqamz/hand/issues
 Name: Hand Companion
 Summary: Watch and steer your own Hand Board from your phone
 Description: |-
-  Hand Companion is the phone side of Hand (https://github.com/atqamz/hand). It needs a laptop that runs Hand. Without one the app has nothing to show.
+  Hand Companion is the phone side of Hand (https://github.com/atqamz/hand). It needs a host that runs Hand. Without one the app has nothing to show.
 
-  You pair the phone with the laptop once, with a link or a QR code that the laptop shows. After that the phone dials the laptop over iroh (https://www.iroh.computer), through a relay or directly.
+  You pair the phone with the host once, with a link or a QR code that the host shows. After that the phone dials the host over iroh (https://www.iroh.computer), through a relay or directly.
 
   What works today:
   * Alerts for decisions, reports and blocked workers, as notifications from a foreground service.
@@ -20,14 +20,9 @@ Description: |-
 
   Privacy:
   * The app sends nothing to the developer. It has no ads, analytics or crash reporting.
-  * The phone talks to your laptop, your router and n0's infrastructure, nothing else. The router is probed for port mapping (UPnP, NAT-PMP, PCP), and the system DNS resolver is used.
-  * The app always uses the public relays and DNS discovery that the iroh project (n0) runs, even when the laptop has its own relay. The phone publishes its home relay URL, signed with its endpoint ID, in n0's public DNS. It does not publish its IP address. n0 sees the phone's IP address when the phone connects to the relay and to the DNS server. The traffic itself is encrypted between the phone and the laptop.
+  * The phone talks to your host, your router and n0's infrastructure, nothing else. The router is probed for port mapping (UPnP, NAT-PMP, PCP), and the system DNS resolver is used.
+  * The app always uses the public relays and DNS discovery that the iroh project (n0) runs, even when the host has its own relay. The phone publishes its home relay URL, signed with its endpoint ID, in n0's public DNS. It does not publish its IP address. n0 sees the phone's IP address when the phone connects to the relay and to the DNS server. The traffic itself is encrypted between the phone and the host.
   * The phone's iroh key is its identity. It stays on the phone, sealed with the Android Keystore.
-Binaries: https://github.com/atqamz/hand-android/releases/download/v%v/hand-android-%v.apk
+Binaries: https://github.com/atqamz/hand/releases/download/android-v%v/hand-android-%v.apk
 AllowedAPKSigningKeys: 9e3c4fecdfd067297cd73e69fa9a8dcedffb11a86f438c5f253a067a6b7f514b
-AutoUpdateMode: Version
-UpdateCheckMode: Tags ^v[0-9]+\.[0-9]+\.[0-9]+$
-Builds:
-  - versionName: 0.1.0
-    versionCode: 1000
-    commit: v0.1.0
+UpdateCheckMode: None
