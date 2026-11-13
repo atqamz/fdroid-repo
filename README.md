@@ -95,10 +95,12 @@ publishes the APK to an `android-vMAJOR.MINOR.PATCH` release and sends a
 `repository_dispatch` of type `hand-android-release`. While that step does not
 exist, the nightly run at 04:17 UTC and any manual run of the workflow do the same
 work from the highest published `android-v*` release of `atqamz/hand`. The selector
-reads every page of the release list, drops drafts and any tag that is not
-`android-vMAJOR.MINOR.PATCH`, and takes the highest version by `sort -V`, whatever
-order GitHub created them in; Hand's own `v*` releases and `edge` never match, so
-none of them is mistaken for the app. With no `android-v*` release the run prints
+reads every page of the release list, drops drafts, and keeps the tags the Android
+release job accepts and nothing else: `android-vMAJOR.MINOR.PATCH` without leading
+zeros, with minor and patch below 1000 and major below 2100. It takes the highest of
+those by `sort -V`, whatever order GitHub created them in; Hand's own `v*` releases,
+`edge`, and a hand-made `android-v01.0.0` never match, so none of them is mistaken
+for the app. With no `android-v*` release the run prints
 `no android-v release in atqamz/hand; nothing to index` and stops before the index
 build and the Pages deploy, leaving the published site alone. A draft release is
 invisible to that lookup, so the first run waits until a release is published.
