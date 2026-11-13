@@ -41,7 +41,20 @@ jobs:
           "$RUNNER_TEMP/venv/bin/pip" install --quiet fdroidserver==2.4.5
           echo "$RUNNER_TEMP/venv/bin" >> "$GITHUB_PATH"
           sudo apt-get install -y --no-install-recommends apksigner
+      - name: Select the newest android release
+        id: release
+        run: |
+          releases="$(gh api --paginate 'repos/atqamz/hand/releases?per_page=100' \
+            --jq '.[] | select(.draft | not) | .tag_name')"
+          tag="$(printf '%s\n' "$releases" | grep -Ex 'android-v[0-9]+\.[0-9]+\.[0-9]+' \
+            | sort -V | tail -n 1 || true)"
+          if [ -z "$tag" ]; then
+            echo "no android-v release in atqamz/hand; nothing to index"
+            exit 0
+          fi
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
       - name: Keep the previous index and archive
+        if: steps.release.outputs.tag != ''
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: |
@@ -49,16 +62,6 @@ jobs:
             archive
           key: fdroid-${{ github.run_id }}
           restore-keys: fdroid-
-      - name: Select the newest android release
-        id: release
-        run: |
-          tag="$(gh release list --repo atqamz/hand --limit 100 --json tagName,isDraft \
-            --jq '[.[]|select(.tagName|startswith("android-v"))|select(.isDraft|not)][0].tagName // ""')"
-          if [ -z "$tag" ]; then
-            echo "no android-v* release yet; nothing to index"
-            exit 0
-          fi
-          echo "tag=$tag" >> "$GITHUB_OUTPUT"
       - name: Download the newest release
         if: steps.release.outputs.tag != ''
         run: |
