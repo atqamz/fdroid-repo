@@ -111,12 +111,13 @@ APK. The tag's version is `version` in `android/src-tauri/tauri.conf.json`, and 
 `bundle.android.versionCode` is `MAJOR*1000000 + MINOR*1000 + PATCH`; Android
 refuses a lower one.
 
-The workflow keeps `repo/` and `archive/` in the Actions cache between runs, so an
-APK is downloaded from `atqamz/hand` once and the index is rebuilt from the cached
-APKs. Every run restores that cache, release or not, which is also what keeps GitHub
-from removing an entry it has not seen for seven days; only a run that found a
-release saves the rebuilt index back, so a run with nothing to index never writes.
-A run that finds a release whose APK is missing fails before anything is published,
-and the index already on Pages stays. Pages serves the workflow's `site/` artifact at
-https://atqamz.github.io/fdroid-repo/; the APKs and the index never enter this git
-history.
+The workflow keeps `repo/` and `archive/` in the Actions cache between runs, so the
+index is rebuilt from the cached `repo/` and `archive/` and the versions indexed
+before survive. Each run that finds a release downloads that release's APK; the cache
+does not save that download. Every run restores the cache, release or not, which is
+also what keeps GitHub from removing an entry it has not seen for seven days; only a
+run that found a release saves the rebuilt index back, so a run with nothing to index
+never writes. A run that finds a release whose APK is missing fails before anything is
+published, and the index already on Pages stays. Pages serves the workflow's `site/`
+artifact at https://atqamz.github.io/fdroid-repo/; the APKs and the index never enter
+this git history.
