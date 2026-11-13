@@ -49,13 +49,14 @@ Android build-tools.
 ## What is here
 
 - `metadata/io.github.atqamz.handcompanion.yml` — name, summary, description,
-  licence, the APK's URL pattern for `Binaries`, the allowed signing key and the
-  `android-v*` tag pattern for `UpdateCheckMode`. There is no build recipe and no
-  `Builds:` entry: this repository publishes the APK that `atqamz/hand` signed, it
-  does not rebuild it, and `fdroid update` reads each APK's version name and version
-  code from the APK itself. The file has no `RepoType` line: `fdroidserver` 2.4.5
-  rejects `RepoType: None`, and an absent one means no source tree is fetched, which
-  is what a binary-only entry needs.
+  licence, the APK's URL pattern for `Binaries` and the allowed signing key. There is
+  no build recipe and no `Builds:` entry: this repository publishes the APK that
+  `atqamz/hand` signed, it does not rebuild it, and `fdroid update` reads each APK's
+  version name and version code from the APK itself. `UpdateCheckMode` is `None`
+  because the workflow picks the release itself and `fdroid checkupdates` never runs,
+  so a tag pattern would name a check nothing performs. The file has no `RepoType`
+  line: `fdroidserver` 2.4.5 rejects `RepoType: None`, and an absent one means no
+  source tree is fetched, which is what a binary-only entry needs.
 - `config.example.yml` — the `fdroidserver` settings, with `${FDROID_...}`
   placeholders for the three values that are secret. `render_config.py` writes the
   real `config.yml` from it at run time.
@@ -64,9 +65,8 @@ Android build-tools.
 - `icon.png` — the repository's icon in the F-Droid client, the app's own icon.
 - `.github/workflows/repo.yaml` — rebuilds the index and deploys it to Pages.
 - `repo/` and `archive/` — built by the workflow and never committed. `repo/` holds
-  the index and its three newest versions (`archive_older: 3`, and never more
-  versions than the metadata lists); older APKs move to `archive/`, which has its
-  own index, so an older version stays downloadable.
+  the index and its three newest versions (`archive_older: 3`); older APKs move to
+  `archive/`, which has its own index, so an older version stays downloadable.
 
 ## For the maintainer
 

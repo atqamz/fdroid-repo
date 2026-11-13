@@ -25,5 +25,4 @@ Description: |-
   * The phone's iroh key is its identity. It stays on the phone, sealed with the Android Keystore.
 Binaries: https://github.com/atqamz/hand/releases/download/android-v%v/hand-android-%v.apk
 AllowedAPKSigningKeys: 9e3c4fecdfd067297cd73e69fa9a8dcedffb11a86f438c5f253a067a6b7f514b
-AutoUpdateMode: Version
-UpdateCheckMode: Tags ^android-v[0-9]+\.[0-9]+\.[0-9]+$
+UpdateCheckMode: None
