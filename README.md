@@ -2,7 +2,7 @@
 
 This repository publishes the F-Droid repository for Hand Companion, the Android
 companion of Hand. Nothing is built here: the release job in
-https://github.com/atqamz/hand-android builds the APK and signs it with the app's
+https://github.com/atqamz/hand builds the APK and signs it with the app's
 release key, and this repository downloads that APK, indexes it with `fdroidserver`
 and serves the index and the APK from GitHub Pages. The app is MIT licensed and its
 source, releases and issue tracker are in that repository; this repository is a
@@ -49,11 +49,13 @@ Android build-tools.
 ## What is here
 
 - `metadata/io.github.atqamz.handcompanion.yml` — name, summary, description,
-  licence, the APK's URL pattern for `Binaries`, the allowed signing key, and one
-  `Builds:` entry per published version. There is no build recipe: this repository
-  publishes the APK that hand-android signed, it does not rebuild it. The file has
-  no `RepoType` line: `fdroidserver` 2.4.5 rejects `RepoType: None`, and an absent
-  one means no source tree is fetched, which is what a binary-only entry needs.
+  licence, the APK's URL pattern for `Binaries`, the allowed signing key and the
+  `android-v*` tag pattern for `UpdateCheckMode`. There is no build recipe and no
+  `Builds:` entry: this repository publishes the APK that `atqamz/hand` signed, it
+  does not rebuild it, and `fdroid update` reads each APK's version name and version
+  code from the APK itself. The file has no `RepoType` line: `fdroidserver` 2.4.5
+  rejects `RepoType: None`, and an absent one means no source tree is fetched, which
+  is what a binary-only entry needs.
 - `config.example.yml` — the `fdroidserver` settings, with `${FDROID_...}`
   placeholders for the three values that are secret. `render_config.py` writes the
   real `config.yml` from it at run time.
@@ -88,27 +90,26 @@ README is
 
 printed as it comes.
 
-A release reaches this repository from hand-android: its release job publishes the
-APK to the GitHub release and sends a `repository_dispatch` of type
-`hand-android-release`. While that step does not exist, the nightly run at 04:17 UTC
-and any manual run of the workflow do the same work from the newest published
-release of `atqamz/hand-android`. A draft release is invisible to that lookup, so
-the first run waits until a release is published.
+A release reaches this repository from `atqamz/hand`: its Android release job
+publishes the APK to an `android-vMAJOR.MINOR.PATCH` release and sends a
+`repository_dispatch` of type `hand-android-release`. While that step does not
+exist, the nightly run at 04:17 UTC and any manual run of the workflow do the same
+work from the newest published `android-v*` release of `atqamz/hand`. The selector
+takes the first non-draft `android-v*` release and ignores Hand's own `v*` releases
+and `edge`, so none of them is mistaken for the app. With no `android-v*` release
+yet the run prints `no android-v* release yet; nothing to index` and stops before
+the index build and the Pages deploy, leaving the published site alone. A draft
+release is invisible to that lookup, so the first run waits until a release is
+published.
 
-Add a version by hand, for a release that has no trigger yet, with one entry in the
-metadata:
-
-    Builds:
-      - versionName: 0.2.0
-        versionCode: 2000
-        commit: v0.2.0
-
-`versionCode` is `MAJOR*1000000 + MINOR*1000 + PATCH`, the literal that
-`bundle.android.versionCode` in hand-android's `tauri.conf.json` holds; Android
-refuses a lower one. `commit` is the tag the APK was built from.
+Publish a version by publishing an `android-vMAJOR.MINOR.PATCH` release with its
+APK; no metadata edit is needed, because `fdroid update` takes the version from the
+APK. The tag's version is `version` in `android/src-tauri/tauri.conf.json`, and its
+`bundle.android.versionCode` is `MAJOR*1000000 + MINOR*1000 + PATCH`; Android
+refuses a lower one.
 
 The workflow keeps `repo/` and `archive/` in the Actions cache between runs, so an
-APK is downloaded from hand-android once and the index is rebuilt from the cached
+APK is downloaded from `atqamz/hand` once and the index is rebuilt from the cached
 APKs. A run that finds a release whose APK is missing fails before anything is
 published, and the index already on Pages stays. Pages serves the workflow's `site/`
 artifact at https://atqamz.github.io/fdroid-repo/; the APKs and the index never
