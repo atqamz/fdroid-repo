@@ -111,7 +111,10 @@ refuses a lower one.
 
 The workflow keeps `repo/` and `archive/` in the Actions cache between runs, so an
 APK is downloaded from `atqamz/hand` once and the index is rebuilt from the cached
-APKs. A run that finds a release whose APK is missing fails before anything is
-published, and the index already on Pages stays. Pages serves the workflow's `site/`
-artifact at https://atqamz.github.io/fdroid-repo/; the APKs and the index never
-enter this git history.
+APKs. Every run restores that cache, release or not, which is also what keeps GitHub
+from removing an entry it has not seen for seven days; only a run that found a
+release saves the rebuilt index back, so a run with nothing to index never writes.
+A run that finds a release whose APK is missing fails before anything is published,
+and the index already on Pages stays. Pages serves the workflow's `site/` artifact at
+https://atqamz.github.io/fdroid-repo/; the APKs and the index never enter this git
+history.

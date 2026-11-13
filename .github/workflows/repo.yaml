@@ -53,9 +53,8 @@ jobs:
             exit 0
           fi
           echo "tag=$tag" >> "$GITHUB_OUTPUT"
-      - name: Keep the previous index and archive
-        if: steps.release.outputs.tag != ''
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+      - name: Restore the previous index and archive
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: |
             repo
@@ -91,6 +90,14 @@ jobs:
           fdroid lint
           fdroid update
           jq -e '.packages["io.github.atqamz.handcompanion"].versions | length > 0' repo/index-v2.json > /dev/null
+      - name: Save the index and archive
+        if: steps.release.outputs.tag != ''
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: |
+            repo
+            archive
+          key: fdroid-${{ github.run_id }}
       - name: Stage the site
         if: steps.release.outputs.tag != ''
         run: |
